@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <link rel="stylesheet" href="../Css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Сайдбар -->
+        <div class="sidebar">
+            <div class="profile-header">
+                <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Фото профиля" class="profile-pic">
+                <div class="profile-name">Иван Петров</div>
+                <div class="rating">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star-half-alt"></i>
+                    <span>4.7</span>
+                </div>
+                
+                <div class="stats">
+                    <div class="stat-item">
+                        <span>Тренировок:</span>
+                        <span class="stat-value" id="workouts-count">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Подписчиков:</span>
+                        <span class="stat-value">320</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Просмотров:</span>
+                        <span class="stat-value">5.2K</span>
+                    </div>
+                </div>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="#" class="active"><i class="fas fa-dumbbell"></i> Мои тренировки</a></li>
+                    <li><a href="createWorkout.html"><i class="fas fa-plus-circle"></i> Создать новую</a></li>
+                    <li><a href="analytics.html"><i class="fas fa-chart-line"></i> Аналитика</a></li>
+                    <li><a href="messages.html"><i class="fas fa-envelope"></i> Сообщения</a></li>
+                    <li><a href="settings.html"><i class="fas fa-cog"></i> Настройки</a></li>
+                    <li><a href="index.html" id="logout-btn"><i class="fas fa-sign-out-alt"></i> Выйти</a></li>
+                </ul>
+            </nav>
+        </div>
+        
+        <!-- Основное содержимое -->
+        <div class="main-content">
+            <section id="my-workouts" class="section active-section">
+                <div class="page-header">
+                    <h1>Мои тренировки</h1>
+                </div>
+                
+                <div class="filters">
+                    <select id="filter-type" class="filter-btn">
+                        <option value="all">Все типы</option>
+                        <option value="hiit">HIIT</option>
+                        <option value="yoga">Йога</option>
+                        <option value="strength">Силовая</option>
+                        <option value="cardio">Кардио</option>
+                        <option value="stretching">Растяжка</option>
+                    </select>
+                    
+                    <select id="filter-level" class="filter-btn">
+                        <option value="all">Все уровни</option>
+                        <option value="beginner">Новичок</option>
+                        <option value="intermediate">Средний</option>
+                        <option value="advanced">Эксперт</option>
+                    </select>
+                </div>
+                
+                <div class="workouts-grid" id="workouts-container">
+                    <!-- Тренировки будут загружаться здесь динамически -->
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", async function() {
+        const workoutsContainer = document.getElementById("workouts-container");
+        const workoutsCountElement = document.getElementById("workouts-count");
+        const trainerId = 1; // В реальном приложении брать из системы аутентификации
+        
+        async function loadWorkouts() {
+            try {
+                const response = await fetch(`http://localhost:3001/api/workouts/trainer/${trainerId}`);
+                
+                if (!response.ok) {
+                    throw new Error('Ошибка при загрузке тренировок');
+                }
+                
+                const workouts = await response.json();
+                return workouts;
+            } catch (error) {
+                console.error('Ошибка:', error);
+                workoutsContainer.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3>Ошибка при загрузке тренировок</h3>
+                        <p>Пожалуйста, попробуйте позже</p>
+                    </div>
+                `;
+                return [];
+            }
+        }
+        
+        function renderWorkouts(workouts) {
+            workoutsContainer.innerHTML = '';
+            
+            if (workouts.length === 0) {
+                workoutsContainer.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-dumbbell"></i>
+                        <h3>У вас пока нет тренировок</h3>
+                        <p>Создайте свою первую тренировку</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            workouts.forEach(workout => {
+                const workoutCard = document.createElement('div');
+                workoutCard.className = 'workout-card';
+                
+                workoutCard.innerHTML = `
+                    <div class="workout-preview">
+                        ${workout.youtube_link ? 
+                            `<img src="https://img.youtube.com/vi/${getYouTubeId(workout.youtube_link)}/0.jpg" alt="${workout.title}">` :
+                            `<img src="https://via.placeholder.com/300x200?text=No+Preview" alt="Превью отсутствует">`
+                        }
+                    </div>
+                    <div class="workout-info">
+                        <h3 class="workout-title">${workout.title}</h3>
+                        <div class="workout-meta">
+                            <span>${workout.duration} мин</span>
+                            <span class="difficulty ${workout.level}">${getLevelName(workout.level)}</span>
+                        </div>
+                        <div class="workout-stats">
+                            <span><i class="fas fa-eye stat-icon"></i> 0</span>
+                            <span><i class="fas fa-heart stat-icon"></i> 0</span>
+                            <span><i class="fas fa-check-circle stat-icon"></i> 0%</span>
+                        </div>
+                        <div class="workout-actions">
+                            <button class="action-btn edit-btn" onclick="editWorkout(${workout.id})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="action-btn delete-btn" onclick="deleteWorkout(${workout.id})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                workoutsContainer.appendChild(workoutCard);
+            });
+            
+            workoutsCountElement.textContent = workouts.length;
+        }
+        
+        // Вспомогательные функции
+        function getLevelName(level) {
+            const levels = {
+                'beginner': 'Новичок',
+                'intermediate': 'Средний',
+                'advanced': 'Эксперт'
+            };
+            return levels[level] || level;
+        }
+        
+        function getYouTubeId(url) {
+            if (!url) return null;
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[2].length === 11) ? match[2] : null;
+        }
+        
+        // Функции для действий
+        async function deleteWorkout(workoutId) {
+            if (!confirm('Вы уверены, что хотите удалить эту тренировку?')) return;
+            
+            try {
+                const response = await fetch(`http://localhost:3001/api/workouts/${workoutId}`, {
+                    method: 'DELETE'
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Ошибка при удалении');
+                }
+                
+                // Перезагружаем список тренировок
+                const workouts = await loadWorkouts();
+                renderWorkouts(workouts);
+            } catch (error) {
+                console.error('Ошибка:', error);
+                alert('Не удалось удалить тренировку');
+            }
+        }
+        
+        function editWorkout(workoutId) {
+            window.location.href = `editWorkout.html?id=${workoutId}`;
+        }
+        
+        // Фильтрация
+        document.getElementById('filter-type').addEventListener('change', filterWorkouts);
+        document.getElementById('filter-level').addEventListener('change', filterWorkouts);
+        
+        let allWorkouts = [];
+        
+        async function filterWorkouts() {
+            const typeFilter = document.getElementById('filter-type').value;
+            const levelFilter = document.getElementById('filter-level').value;
+            
+            if (allWorkouts.length === 0) {
+                allWorkouts = await loadWorkouts();
+            }
+            
+            let filtered = allWorkouts;
+            
+            if (typeFilter !== 'all') {
+                filtered = filtered.filter(w => w.type === typeFilter);
+            }
+            
+            if (levelFilter !== 'all') {
+                filtered = filtered.filter(w => w.level === levelFilter);
+            }
+            
+            renderWorkouts(filtered);
+        }
+        
+        // Инициализация
+        filterWorkouts();
+    });
+    </script>
+</body>
+</html>

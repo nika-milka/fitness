@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <!-- Общие стили -->
+    <link rel="stylesheet" href="../Css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+    <body>
+        <div class="container">
+            <!-- Сайдбар -->
+            <div class="sidebar">
+                <div class="profile-header">
+                    <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Фото профиля" class="profile-pic">
+                    <div class="profile-name">Иван Петров</div>
+                    <div class="rating">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star-half-alt"></i>
+                        <span>4.7</span>
+                    </div>
+                    
+                    <div class="stats">
+                        <div class="stat-item">
+                            <span>Тренировок:</span>
+                            <span class="stat-value">15</span>
+                        </div>
+                        <div class="stat-item">
+                            <span>Подписчиков:</span>
+                            <span class="stat-value">320</span>
+                        </div>
+                        <div class="stat-item">
+                            <span>Просмотров:</span>
+                            <span class="stat-value">5.2K</span>
+                        </div>
+                    </div>
+                </div>
+                <nav>
+                    <ul>
+                        <li><a href="mainTrainer.html" class="active"><i class="fas fa-dumbbell"></i> Мои тренировки</a></li>
+                        <li><a href="#"><i class="fas fa-plus-circle"></i> Создать новую</a></li>
+                        <li><a href="analytics.html"><i class="fas fa-chart-line"></i> Аналитика</a></li>
+                        <li><a href="messages.html"><i class="fas fa-envelope"></i> Сообщения</a></li>
+                        <li><a href="settings.html"><i class="fas fa-cog"></i> Настройки</a></li>
+                        <li><a href="index.html" id="logout-btn"><i class="fas fa-sign-out-alt"></i> Выйти</a></li>
+                    </ul>
+                </nav>
+            </div>
+
+            <div class="form-container">
+                <form id="workout-form">
+                    <div class="form-group">
+                        <label for="workout-title">Название тренировки*</label>
+                        <input type="text" id="workout-title" required placeholder="Например: Интенсивный HIIT для начинающих">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="workout-description">Описание</label>
+                        <textarea id="workout-description" placeholder="Опишите свою тренировку, какие мышцы задействованы, для кого она подходит..."></textarea>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="workout-type">Тип тренировки</label>
+                            <select id="workout-type">
+                                <option value="hiit">HIIT</option>
+                                <option value="yoga">Йога</option>
+                                <option value="strength">Силовая</option>
+                                <option value="cardio">Кардио</option>
+                                <option value="stretching">Растяжка</option>
+                                <option value="other">Другое</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="workout-level">Уровень сложности</label>
+                            <select id="workout-level">
+                                <option value="beginner">Новичок</option>
+                                <option value="intermediate">Средний</option>
+                                <option value="advanced">Эксперт</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="workout-duration">Длительность (минут)*</label>
+                        <input type="number" id="workout-duration" required min="5" max="120">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Видео тренировки</label>
+                        <div class="upload-area" id="upload-area">
+                            <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                            <p class="upload-text">Перетащите видео сюда или кликните для загрузки</p>
+                            <p class="upload-hint">Поддерживаемые форматы: MP4, WebM, MOV (макс. 100MB)</p>
+                            <p class="upload-hint">Или вставьте ссылку на YouTube</p>
+                            <input type="file" id="video-upload" accept="video/*" style="display: none;">
+                        </div>
+                        <div class="video-preview" id="video-preview">
+                            <video controls id="video-player"></video>
+                        </div>
+                        <input type="text" id="youtube-link" placeholder="Ссылка на YouTube (если есть)">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="workout-instructions">Текстовая инструкция</label>
+                        <textarea id="workout-instructions" placeholder="Опишите пошагово упражнения, тайминг, важные замечания..."></textarea>
+                    </div>
+                    
+                    <div class="publish-options">
+                        <button type="submit" class="publish-btn publish-now">Опубликовать сейчас</button>
+                        <button type="button" class="publish-btn schedule">Запланировать</button>
+                    </div>
+                </form>
+            </div>
+            
+            <script>
+                document.addEventListener("DOMContentLoaded", function() {
+                    const form = document.getElementById("workout-form");
+                    const uploadArea = document.getElementById("upload-area");
+                    const videoUpload = document.getElementById("video-upload");
+                    const videoPreview = document.getElementById("video-preview");
+                    const videoPlayer = document.getElementById("video-player");
+                    const youtubeLink = document.getElementById("youtube-link");
+                    
+                    // Обработка клика по области загрузки
+                    uploadArea.addEventListener("click", function() {
+                        videoUpload.click();
+                    });
+                    
+                    // Обработка выбора файла
+                    videoUpload.addEventListener("change", function(event) {
+                        const file = event.target.files[0];
+                        if (file) {
+                            // Проверка типа файла
+                            if (!file.type.match('video.*')) {
+                                alert('Пожалуйста, выберите видео файл');
+                                return;
+                            }
+                            
+                            // Проверка размера файла (макс. 100MB)
+                            if (file.size > 100 * 1024 * 1024) {
+                                alert('Файл слишком большой. Максимальный размер - 100MB');
+                                return;
+                            }
+                            
+                            // Очищаем поле YouTube
+                            youtubeLink.value = '';
+                            
+                            // Показываем превью
+                            videoPlayer.src = URL.createObjectURL(file);
+                            videoPreview.style.display = "block";
+                        }
+                    });
+                    
+                    // Обработка ввода YouTube ссылки
+                    youtubeLink.addEventListener("input", function() {
+                        if (this.value) {
+                            videoPreview.style.display = "none";
+                            videoUpload.value = '';
+                        }
+                    });
+                    
+                    // Обработка отправки формы
+                    form.addEventListener("submit", async function(event) {
+                        event.preventDefault();
+                        
+                        // Получаем данные из формы
+                        const workoutData = {
+                            title: document.getElementById("workout-title").value,
+                            description: document.getElementById("workout-description").value,
+                            type: document.getElementById("workout-type").value,
+                            level: document.getElementById("workout-level").value,
+                            duration: document.getElementById("workout-duration").value,
+                            instructions: document.getElementById("workout-instructions").value,
+                            youtubeLink: youtubeLink.value,
+                            trainerId: 1 // В реальном приложении брать из сессии или токена
+                        };
+                        
+                        // Проверка обязательных полей
+                        if (!workoutData.title || !workoutData.duration) {
+                            alert('Пожалуйста, заполните обязательные поля');
+                            return;
+                        }
+                        
+                        // Проверка наличия видео или YouTube ссылки
+                        if (!videoUpload.files[0] && !workoutData.youtubeLink) {
+                            alert('Пожалуйста, загрузите видео или укажите ссылку на YouTube');
+                            return;
+                        }
+                        
+                        try {
+                            // Отправка данных на сервер
+                            const response = await fetch('http://localhost:3001/api/workouts', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify(workoutData)
+                            });
+                            
+                            if (!response.ok) {
+                                throw new Error('Ошибка сервера: ' + response.status);
+                            }
+                            
+                            const result = await response.json();
+                            alert('Тренировка успешно сохранена в базе данных!');
+                            window.location.href = "mainTrainer.html";
+                            
+                        } catch (error) {
+                            console.error('Ошибка:', error);
+                            alert('Произошла ошибка при сохранении тренировки: ' + error.message);
+                        }
+                    });
+                });
+                </script>
+            <style>
+.upload-area {
+    border: 2px dashed var(--accent);
+    border-radius: 5px;
+    padding: 30px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-bottom: 15px;
+}
+
+.upload-area:hover {
+    background-color: rgba(32, 123, 37, 0.1);
+}
+
+.upload-icon {
+    font-size: 2rem;
+    color: var(--light-accent);
+    margin-bottom: 10px;
+}
+
+.upload-text {
+    margin-bottom: 5px;
+}
+
+.upload-hint {
+    font-size: 0.8rem;
+    color: var(--text-light);
+    margin-bottom: 3px;
+}
+
+.video-preview {
+    margin-top: 20px;
+    display: none;
+}
+
+.video-preview video {
+    max-width: 100%;
+    max-height: 300px;
+    border-radius: 5px;
+    border: 1px solid var(--accent);
+}
+</style>
+        
+    </body>
+</html>
+

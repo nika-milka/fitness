@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Сообщения | HomeWorkout</title>
+    <link rel="stylesheet" href="../Css/style.css"> 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Сайдбар (как в других страницах) -->
+        <div class="sidebar">
+            <div class="profile-header">
+                <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Фото профиля" class="profile-pic">
+                <div class="profile-name" id="coach-name"><span id="user-name"></span></div>
+                <div class="rating">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star-half-alt"></i>
+                    <span>4.7</span>
+                </div>
+                
+                <div class="stats">
+                    <div class="stat-item">
+                        <span>Тренировок:</span>
+                        <span class="stat-value">15</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Подписчиков:</span>
+                        <span class="stat-value">320</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Просмотров:</span>
+                        <span class="stat-value">5.2K</span>
+                    </div>
+                </div>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="user.html" class="active"><i class="fas fa-dumbbell"></i> Мои тренировки</a></li>
+                    <li><a href="my-programs.html"><i class="fas fa-clipboard-list"></i> Мои программы</a></li>
+                    <li><a href="progress.html"><i class="fas fa-chart-line"></i> Мой прогресс</a></li>
+                    <li><a href="messages1.html"><i class="fas fa-envelope"></i> Сообщения</a></li>
+                    <li><a href="settings.html"><i class="fas fa-cog"></i> Настройки</a></li>
+                    <li><a href="index.html" id="logout-btn"><i class="fas fa-sign-out-alt"></i> Выйти</a></li>
+                </ul>
+            </nav>
+        </div>
+        
+        <!-- Основное содержимое -->
+        <div class="main-content">
+            <!-- Заголовок чата -->
+            <div class="chat-header">
+                <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Аватар клиента" class="chat-avatar">
+                <div class="chat-info">
+                    <h3>Мария Смирнова</h3>
+                    <p>Онлайн</p>
+                </div>
+            </div>
+            
+            <!-- Область сообщений -->
+            <div class="messages-container" id="messagesContainer">
+                <!-- Сообщения будут добавляться здесь -->
+            </div>
+            
+            <!-- Форма отправки сообщения -->
+            <form class="message-form" id="messageForm">
+                <input type="text" class="message-input" id="messageInput" placeholder="Напишите сообщение..." autocomplete="off">
+                <button type="submit" class="send-button">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const messagesContainer = document.getElementById('messagesContainer');
+            const messageForm = document.getElementById('messageForm');
+            const messageInput = document.getElementById('messageInput');
+            
+            // Загрузка истории сообщений из localStorage
+            loadMessages();
+            
+            // Обработчик отправки сообщения
+            messageForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const messageText = messageInput.value.trim();
+                if(messageText) {
+                    // Создаем объект сообщения
+                    const message = {
+                        text: messageText,
+                        sender: 'trainer', // или 'client' для сообщений от клиента
+                        time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+                    };
+                    
+                    // Добавляем сообщение в чат
+                    addMessageToChat(message);
+                    
+                    // Сохраняем в localStorage
+                    saveMessage(message);
+                    
+                    // Очищаем поле ввода
+                    messageInput.value = '';
+                    
+                    // Здесь должен быть код отправки на сервер
+                    // sendMessageToServer(message);
+                    
+                    // Прокручиваем вниз
+                    scrollToBottom();
+                }
+            });
+            
+            // Функция добавления сообщения в чат
+            function addMessageToChat(message) {
+                const messageElement = document.createElement('div');
+                messageElement.className = `message ${message.sender}-message new-message`;
+                messageElement.innerHTML = `
+                    ${message.text}
+                    <span class="message-time">${message.time}</span>
+                `;
+                messagesContainer.appendChild(messageElement);
+            }
+            
+            // Функция сохранения сообщения
+            function saveMessage(message) {
+                const messages = JSON.parse(localStorage.getItem('trainerMessages')) || [];
+                messages.push(message);
+                localStorage.setItem('trainerMessages', JSON.stringify(messages));
+            }
+
+            // Функция загрузки сообщений
+            function loadMessages() {
+                const messages = JSON.parse(localStorage.getItem('trainerMessages')) || [];
+                
+                // Пример сообщений (можно удалить после реализации сервера)
+                if(messages.length === 0) {
+                    messages.push(
+                        {text: 'Здравствуйте! Как ваши тренировки?', sender: 'client', time: '10:30'},
+                        {text: 'Привет! Пока все хорошо, но есть вопросы по технике', sender: 'trainer', time: '10:32'},
+                        {text: 'Какие именно? Можете описать проблему?', sender: 'client', time: '10:33'}
+                    );
+                }
+                
+                messages.forEach(message => {
+                    addMessageToChat(message);
+                });
+                
+                scrollToBottom();
+            }
+            
+            // Функция прокрутки вниз
+            function scrollToBottom() {
+            setTimeout(() => {
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }, 100);
+        }
+            
+            // Эмуляция получения новых сообщений (для демонстрации)
+            setInterval(() => {
+                if(Math.random() > 0.7) { // 30% chance
+                    const message = {
+                        text: getRandomClientMessage(),
+                        sender: 'client',
+                        time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+                    };
+                    addMessageToChat(message);
+                    saveMessage(message);
+                    scrollToBottom();
+                }
+            }, 10000); // Проверка каждые 10 секунд
+            
+            function getRandomClientMessage() {
+                const messages = [
+                    "Спасибо, попробую!",
+                    "Не совсем понял это упражнение",
+                    "Когда будет следующая тренировка?",
+                    "Можно видео этого упражнения?",
+                    "У меня болит спина после вчерашнего",
+                    "Какая альтернатива этому упражнению?",
+                    "Сколько подходов делать?"
+                ];
+                return messages[Math.floor(Math.random() * messages.length)];
+            }
+        });
+    </script>
+</body>
+</html>

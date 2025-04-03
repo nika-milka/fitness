@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Фитнес-приложение - Вход/Регистрация</title>
+    <link rel="stylesheet" href="../Css/style2.css">
+</head>
+<body>
+    <div class="container">
+        <div class="form-container">
+            <div class="toggle-buttons">
+                <button id="login-toggle" class="active">Вход</button>
+                <button id="register-toggle">Регистрация</button>
+            </div>
+
+            <form id="login-form" class="auth-form">
+                <h2>Вход в аккаунт</h2>
+                <div class="form-group">
+                    <label for="login-email">Email</label>
+                    <input type="email" id="login-email" required>
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Пароль</label>
+                    <input type="password" id="login-password" required>
+                </div>
+                <button type="submit" class="btn">Войти</button>
+                <p class="form-footer">
+                    <a href="#" id="forgot-password">Забыли пароль?</a>
+                </p>
+            </form>
+
+            <form id="register-form" class="auth-form hidden">
+                <h2>Создать аккаунт</h2>
+                <div class="form-group">
+                    <label for="register-name">Имя</label>
+                    <input type="text" id="register-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-email">Email</label>
+                    <input type="email" id="register-email" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-password">Пароль</label>
+                    <input type="password" id="register-password" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-role">Тип аккаунта</label>
+                    <select id="register-role" required>
+                        <option value="">-- Выберите --</option>
+                        <option value="user">Пользователь</option>
+                        <option value="coach">Тренер</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn">Зарегистрироваться</button>
+            </form>
+
+            <form id="forgot-password-form" class="auth-form hidden">
+                <h2>Восстановление пароля</h2>
+                <div class="form-group">
+                    <label for="reset-email">Email</label>
+                    <input type="email" id="reset-email" required>
+                </div>
+                <button type="submit" class="btn">Получить код</button>
+                <p class="form-footer">
+                    <a href="#" id="back-to-login">Назад к входу</a>
+                </p>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

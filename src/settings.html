@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Личный кабинет</title>
+    <link rel="stylesheet" href="../Css/style2.css">
+</head>
+<body>
+    <div class="dashboard">
+        <header>
+            <div class="header-content">
+                <h1>Добро пожаловать, <span id="user-name"></span>!</h1>
+                <button id="logout-btn" class="btn logout-btn">Выйти</button>
+            </div>
+        </header>
+        
+        <div class="content">
+            <section class="profile-section">
+                <h2>Профиль</h2>
+                <div class="profile-grid">
+                    <div class="profile-item">
+                        <span class="label">Email:</span>
+                        <span id="user-email" class="value"></span>
+                    </div>
+                    <div class="profile-item">
+                        <span class="label">Роль:</span>
+                        <span id="user-role" class="value"></span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="survey-section">
+                <h2>Данные опроса</h2>
+                <div class="survey-grid" id="survey-data">
+                    <div class="survey-item">
+                        <span class="label">Возраст:</span>
+                        <span id="survey-age" class="value">не указан</span>
+                    </div>
+                    <div class="survey-item">
+                        <span class="label">Уровень:</span>
+                        <span id="survey-level" class="value">не указан</span>
+                    </div>
+                    <div class="survey-item">
+                        <span class="label">Цели:</span>
+                        <span id="survey-goals" class="value">не указаны</span>
+                    </div>
+                </div>
+                <div id="no-survey" class="no-data">
+                    Вы еще не заполнили начальный опрос
+                </div>
+            </section>
+
+            <section class="actions-section">
+                <button id="edit-profile-btn" class="btn secondary">
+                    Редактировать профиль
+                </button>
+                <button id="retake-survey-btn" class="btn secondary">
+                    Пройти опрос
+                </button>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('logout-btn').addEventListener('click', function() {
+            window.location.href = 'user.html';
+        });
+    </script>
+</body>
+</html>
